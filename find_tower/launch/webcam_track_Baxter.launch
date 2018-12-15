@@ -1,0 +1,39 @@
+<launch>
+  <arg name="marker_size" default="12" />
+  <arg name="max_new_marker_error" default="0.08" />
+  <arg name="max_track_error" default="0.2" />
+  <arg name="cam_image_topic" default="/cameras/head_camera/image_raw" />
+  <arg name="cam_info_topic" default="/cameras/head_camera/camera_info" />
+  <arg name="output_frame" default="/head_camera" />
+  <arg name="max_frequency" default="10.0" />
+  <arg name="marker_resolution" default="5" />
+  <arg name="marker_margin" default="2" />
+  <arg name="frame_id" default="/head_camera" />
+
+  <arg name="marker_frame" default="10" />
+
+
+  <param name="marker_frame" value="$(arg marker_frame)" />
+
+  <node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="screen" args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg cam_image_topic) $(arg cam_info_topic) $(arg output_frame) $(arg max_frequency) $(arg marker_resolution) $(arg marker_margin)" />
+    <arg name="config" default="true"/>
+  <include file="$(find baxter_moveit_config)/launch/planning_context.launch">
+    <arg name="load_robot_description" value="true"/>
+  </include>
+
+  <!--node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="/use_gui" value="false"/>
+  </node-->
+  
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" />
+
+  <include file="$(find baxter_moveit_config)/launch/move_group.launch">
+    <arg name="allow_trajectory_execution" value="false"/>
+  </include>
+
+  <include file="$(find baxter_moveit_config)/launch/moveit_rviz.launch">
+    <arg name="config" value="true"/>
+  </include>
+
+  <!--include file="$(find baxter_moveit_config)/launch/default_warehouse_db.launch" /-->
+</launch>
